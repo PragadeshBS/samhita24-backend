@@ -45,7 +45,9 @@ const createUser = async (req, res) => {
       dept,
       password: hashedPassword,
     });
-    res.status(200).json({ email, token: generateToken(user._id) });
+    const userInfo = JSON.parse(JSON.stringify(user));
+    delete userInfo.password;
+    res.status(200).json({ email, token: generateToken(user._id), userInfo });
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
@@ -120,7 +122,11 @@ const login = async (req, res) => {
     if (!validPassword) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-    res.status(200).json({ email: user.email, token: generateToken(user._id) });
+    const userInfo = JSON.parse(JSON.stringify(user));
+    delete userInfo.password;
+    res
+      .status(200)
+      .json({ email: user.email, token: generateToken(user._id), userInfo });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
