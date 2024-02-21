@@ -195,23 +195,23 @@ const forgotPassword = async (req, res) => {
     user: user._id,
   });
 
-  // const transporter = nodemailer.createTransport({
-  //   service: "gmail",
-  //   auth: {
-  //     user: process.env.MAIL_USERNAME,
-  //     pass: process.env.MAIL_PWD,
-  //   },
-  // });
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PWD,
+    },
+  });
 
-  // var mailOptions = {
-  //   from: process.env.MAIL_USERNAME,
-  //   to: email,
-  //   subject: "Password reset - MIT Events",
-  //   html: `<p>Click the following link to reset your password. If you did not request for password reset, you can ignore this mail.</p>
-  //   <a href="https://mitevents.herokuapp.com/reset-password?token=${token}">Reset password</a>`,
-  // };
+  var mailOptions = {
+    from: process.env.MAIL_USERNAME,
+    to: email,
+    subject: "Password reset - Samhita 2024",
+    html: `<p>Click the following link to reset your password. If you did not request for password reset, you can ignore this mail.</p>
+    <a href="https://samhita.me/#/reset-password?token=${token}">Reset password</a>`,
+  };
 
-  // transporter.sendMail(mailOptions);
+  transporter.sendMail(mailOptions);
 
   res.status(200).json({ msg: "success" });
 };
