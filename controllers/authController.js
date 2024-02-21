@@ -139,7 +139,8 @@ const validateSignup = (data) => {
     userName: Joi.string().required().label("Name"),
     regNo: Joi.string().required().label("Register Number"),
     mobile: Joi.string().required().length(10).label("Mobile "),
-    dept: Joi.string().empty("").label("Department"),
+    dept: Joi.string().required().label("Department"),
+    college: Joi.string().required().label("College"),
     email: Joi.string().email().required().label("Email"),
     password: Joi.string().length(8).required().label("Password"),
     confirmPassword: Joi.string()
