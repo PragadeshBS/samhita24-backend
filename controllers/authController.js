@@ -13,7 +13,8 @@ const createUser = async (req, res) => {
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
-    const { userName, regNo, mobile, email, dept, password } = req.body;
+    const { userName, regNo, mobile, email, college, dept, password } =
+      req.body;
 
     // finding duplicates
     let exists = await User.findOne({ email });
@@ -42,6 +43,7 @@ const createUser = async (req, res) => {
       regNo,
       mobile,
       email,
+      college,
       dept,
       password: hashedPassword,
     });

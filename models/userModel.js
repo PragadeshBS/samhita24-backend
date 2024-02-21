@@ -18,6 +18,9 @@ const userSchema = mongoose.Schema(
     dept: {
       type: String,
     },
+    college: {
+      type: String,
+    },
     email: {
       type: String,
       unique: true,
