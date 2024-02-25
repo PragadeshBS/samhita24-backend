@@ -142,11 +142,8 @@ const validateSignup = (data) => {
     dept: Joi.string().required().label("Department"),
     college: Joi.string().required().label("College"),
     email: Joi.string().email().required().label("Email"),
-    password: Joi.string().length(8).required().label("Password"),
-    confirmPassword: Joi.string()
-      .length(8)
-      .required()
-      .label("Confirm Password"),
+    password: Joi.string().required().label("Password"),
+    confirmPassword: Joi.string().required().label("Confirm Password"),
   });
   return schema.validate(data);
 };
