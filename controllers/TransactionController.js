@@ -1,9 +1,10 @@
 const Transaction = require("../models/transactionModel");
 const Ticket = require("../models/ticketModel");
+const Referral = require("../models/referralModel");
 
 const addTransaction = async (req, res) => {
   try {
-    const { upiTransactionId, checkoutIds } = req.body;
+    const { upiTransactionId, checkoutIds, referralCode } = req.body;
     if (!upiTransactionId || !checkoutIds) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -22,12 +23,27 @@ const addTransaction = async (req, res) => {
       purchasedTicketIds.push(ticket._id);
       amount += parseFloat(ticket.ticketPrice.toString());
     }
-    const transaction = await Transaction.create({
+    const referral = await Referral.findOne({
+      referralCode,
+    });
+    if (referral) {
+      if (referral.discountAmount) {
+        amount -= parseFloat(referral.discountAmount.toString());
+      } else if (referral.discountPercent) {
+        amount -=
+          (amount * parseFloat(referral.discountPercent.toString())) / 100;
+      }
+    }
+    const transactionObject = {
       upiTransactionId,
       transactionAmount: amount,
       userId: req.user._id,
       purchasedTickets: purchasedTicketIds,
-    });
+    };
+    if (referral) {
+      transactionObject.referral = referral._id;
+    }
+    const transaction = await Transaction.create(transactionObject);
     return res
       .status(200)
       .json({ message: "Transaction added successfully", transaction });
@@ -41,7 +57,9 @@ const getTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({
       userId: req.user._id,
-    }).populate("purchasedTickets");
+    })
+      .populate("purchasedTickets")
+      .populate("referral");
     return res.status(200).json({ transactions });
   } catch (error) {
     console.log(error);

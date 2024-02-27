@@ -21,6 +21,10 @@ const transactionSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    referral: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Referral",
+    },
     purchasedTickets: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "Ticket",
