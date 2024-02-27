@@ -25,6 +25,9 @@ const eventSchema = mongoose.Schema(
     secondPrizeMoney: {
       type: Number,
     },
+    thirdPrizeMoney: {
+      type: Number,
+    },
     venue: {
       type: String,
       required: true,
