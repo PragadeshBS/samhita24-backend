@@ -19,6 +19,7 @@ const webLogSchema = mongoose.Schema(
     query: String,
     path: String,
     user: String,
+    localTime: String,
   },
   { timestamps: true }
 );
