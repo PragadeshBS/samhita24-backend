@@ -16,7 +16,7 @@ const app = express();
 
 // const corsOptions = {
 //   origin: ["https://samhita.me"],
-//   optionsSuccessStatus: 200,
+//   optionsSuccessStatus: 200
 // };
 
 // app.use(cors(corsOptions));
