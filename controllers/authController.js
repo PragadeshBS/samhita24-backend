@@ -43,7 +43,7 @@ const createUser = async (req, res) => {
       regNo,
       mobile,
       email,
-      college: college.toUpperCase(),
+      college: college.toUpperCase().trim(),
       dept,
       password: hashedPassword,
     });
