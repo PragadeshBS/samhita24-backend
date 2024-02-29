@@ -12,7 +12,7 @@ router.post("/signup", createUser);
 
 router.post("/login", login);
 
-router.patch("/user/:id", updateUser);
+// router.patch("/user/:id", updateUser);
 
 router.post("/forgot-password", forgotPassword);
 

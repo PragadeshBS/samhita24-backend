@@ -7,6 +7,6 @@ const {
 
 router.post("/", logRequest);
 
-router.get("/page-views", getPageViews);
+// router.get("/page-views", getPageViews);
 
 module.exports = router;
