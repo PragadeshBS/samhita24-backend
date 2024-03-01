@@ -53,6 +53,18 @@ const addTransaction = async (req, res) => {
   }
 };
 
+const getAllTransactions = async (req, res) => {
+  try {
+    const transactions = await Transaction.find()
+      .populate("purchasedTickets")
+      .populate("referral");
+    return res.status(200).json({ transactions });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 const getTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({
@@ -70,4 +82,5 @@ const getTransactions = async (req, res) => {
 module.exports = {
   addTransaction,
   getTransactions,
+  getAllTransactions,
 };

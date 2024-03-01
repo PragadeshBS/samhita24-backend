@@ -2,11 +2,11 @@ const {
   getReferral,
   addReferral,
 } = require("../controllers/referralController");
-const { protect } = require("../middleware/authMiddleware");
+const { protect, adminOnly } = require("../middleware/authMiddleware");
 
 const router = require("express").Router();
 
-router.post("/", addReferral);
+router.post("/", protect, adminOnly, addReferral);
 
 router.get("/:referralCode", protect, getReferral);
 
