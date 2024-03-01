@@ -21,7 +21,7 @@ const ticketSchema = mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["event", "workshop", "other", "workshop-combo", "accomodation"],
+      enum: ["event", "workshop", "other", "workshop-combo", "accommodation"],
       default: "event",
     },
   },
