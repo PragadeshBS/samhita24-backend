@@ -20,16 +20,14 @@ const getPageViews = async (req, res) => {
   res.json({ pageViews });
 };
 
-const getAllNonMitUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
-    const nonMitUsers = await User.find({ college: { $ne: "MIT" } }).select(
-      "-password"
-    );
-    res.json({ nonMitUsers });
+    const users = await User.find().select("-password");
+    res.json({ users });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = { logRequest, getPageViews, getAllNonMitUsers };
+module.exports = { logRequest, getPageViews, getAllUsers };
