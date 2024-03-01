@@ -17,6 +17,10 @@ const referralSchema = mongoose.Schema(
     discountAmount: {
       type: mongoose.Types.Decimal128,
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,

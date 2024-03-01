@@ -27,6 +27,9 @@ const addTransaction = async (req, res) => {
       referralCode,
     });
     if (referral) {
+      if (!referral.active) {
+        return res.status(400).json({ message: "Referral code is not active" });
+      }
       if (referral.discountAmount) {
         amount -= parseFloat(referral.discountAmount.toString());
       } else if (referral.discountPercent) {
@@ -57,7 +60,7 @@ const getAllTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find()
       .populate("purchasedTickets")
-      .populate("referral");
+      .populate("referral userId");
     return res.status(200).json({ transactions });
   } catch (error) {
     console.log(error);
