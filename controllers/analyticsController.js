@@ -1,6 +1,7 @@
 const requestIp = require("request-ip");
 const axios = require("axios");
 const WebLog = require("../models/webLogModel");
+const User = require("../models/userModel");
 
 const logRequest = async (req, res) => {
   const clientIp = requestIp.getClientIp(req);
@@ -19,4 +20,16 @@ const getPageViews = async (req, res) => {
   res.json({ pageViews });
 };
 
-module.exports = { logRequest, getPageViews };
+const getAllNonMitUsers = async (req, res) => {
+  try {
+    const nonMitUsers = await User.find({ college: { $ne: "MIT" } }).select(
+      "-password"
+    );
+    res.json({ nonMitUsers });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { logRequest, getPageViews, getAllNonMitUsers };
