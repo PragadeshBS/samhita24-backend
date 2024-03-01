@@ -52,6 +52,9 @@ const eventSchema = mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "EventImage",
     },
+    externalImageLink: {
+      type: String,
+    },
     link: {
       type: String,
     },
