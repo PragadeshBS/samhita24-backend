@@ -26,10 +26,14 @@ const addTransaction = async (req, res) => {
     }
     let amount = 0;
     const purchasedTicketIds = [];
+    let containsAccommodationTicket = false;
     for (let i = 0; i < checkoutIds.length; i++) {
       const ticket = await Ticket.findOne({ checkoutId: checkoutIds[i] });
       if (!ticket) {
         return res.status(404).json({ message: "Ticket not found" });
+      }
+      if (ticket.type === "accommodation") {
+        containsAccommodationTicket = true;
       }
       purchasedTicketIds.push(ticket._id);
       amount += parseFloat(ticket.ticketPrice.toString());
@@ -46,6 +50,11 @@ const addTransaction = async (req, res) => {
       ) {
         return res.status(400).json({
           message: "Referral code is not applicable for your college",
+        });
+      }
+      if (containsAccommodationTicket) {
+        return res.status(400).json({
+          message: "Referral code is not applicable for accommodation tickets",
         });
       }
       if (referral.discountAmount) {
