@@ -129,8 +129,11 @@ const getEvent = async (req, res) => {
     return res.status(400).json({ error: "No such event" });
   }
   const event = await Event.findById(id)
-    .populate("organisers")
-    .populate("participants");
+    .populate({
+      path: "organisers",
+      select: "email -_id",
+    })
+    .select("-participants -shortDescription");
   if (!event) {
     return res.status(400).json({ error: "No such event" });
   }
