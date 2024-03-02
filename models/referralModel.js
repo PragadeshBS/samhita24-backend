@@ -17,6 +17,9 @@ const referralSchema = mongoose.Schema(
     discountAmount: {
       type: mongoose.Types.Decimal128,
     },
+    applicableCollege: {
+      type: String,
+    },
     active: {
       type: Boolean,
       default: true,

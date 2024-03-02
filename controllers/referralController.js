@@ -2,13 +2,19 @@ const Refferal = require("../models/referralModel");
 
 const addReferral = async (req, res) => {
   try {
-    const { referralCode, referredBy, discountPercent, discountAmount } =
-      req.body;
+    const {
+      referralCode,
+      referredBy,
+      discountPercent,
+      discountAmount,
+      applicableCollege,
+    } = req.body;
     const referral = await Refferal.create({
       referralCode,
       referredBy,
       discountPercent,
       discountAmount,
+      applicableCollege,
     });
     return res.status(200).json({
       referral,
@@ -27,6 +33,24 @@ const getReferral = async (req, res) => {
     const referral = await Refferal.findOne({ referralCode }).select(
       "-referredBy"
     );
+    if (!referral) {
+      return res.status(400).json({
+        message: "Referral code not found",
+      });
+    }
+    if (!referral.active) {
+      return res.status(400).json({
+        message: "Referral code is not active",
+      });
+    }
+    if (
+      referral.applicableCollege &&
+      referral.applicableCollege !== req.user.college
+    ) {
+      return res.status(400).json({
+        message: "Referral code is not applicable for your college",
+      });
+    }
     return res.status(200).json({
       referral,
     });

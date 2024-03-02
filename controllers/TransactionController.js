@@ -40,6 +40,13 @@ const addTransaction = async (req, res) => {
     if (referral) {
       if (!referral.active) {
         return res.status(400).json({ message: "Referral code is not active" });
+      } else if (
+        referral.applicableCollege &&
+        referral.applicableCollege !== req.user.college
+      ) {
+        return res.status(400).json({
+          message: "Referral code is not applicable for your college",
+        });
       }
       if (referral.discountAmount) {
         amount -= parseFloat(referral.discountAmount.toString());
