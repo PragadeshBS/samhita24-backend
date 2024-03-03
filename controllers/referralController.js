@@ -29,7 +29,8 @@ const addReferral = async (req, res) => {
 
 const getReferral = async (req, res) => {
   try {
-    const { referralCode } = req.params;
+    let { referralCode } = req.params;
+    referralCode = referralCode.toLowerCase();
     const referral = await Refferal.findOne({ referralCode }).select(
       "-referredBy"
     );

@@ -38,8 +38,9 @@ const addTransaction = async (req, res) => {
       purchasedTicketIds.push(ticket._id);
       amount += parseFloat(ticket.ticketPrice.toString());
     }
+    const lowerCaseReferralCode = referralCode.toLowerCase();
     const referral = await Referral.findOne({
-      referralCode,
+      referralCode: lowerCaseReferralCode,
     });
     if (referral) {
       if (!referral.active) {
