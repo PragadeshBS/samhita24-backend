@@ -63,7 +63,22 @@ const getReferral = async (req, res) => {
   }
 };
 
+const getAllReferrals = async (req, res) => {
+  try {
+    const referrals = await Refferal.find({});
+    return res.status(200).json({
+      referrals,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addReferral,
   getReferral,
+  getAllReferrals,
 };
