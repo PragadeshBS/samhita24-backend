@@ -1,5 +1,4 @@
 const Ticket = require("../models/ticketModel");
-const Transaction = require("../models/transactionModel");
 const VerifiedTransactions = require("../models/verifiedTransactionsModel");
 
 const addTicket = async (req, res) => {
@@ -58,8 +57,50 @@ const getVerifiedTickets = async (req, res) => {
   }
 };
 
+const getAllVerifiedTickets = async (req, res) => {
+  try {
+    const verifiedTransactions = await VerifiedTransactions.find({})
+      .populate("user", "userName mobile email college dept regNo")
+      .populate({
+        path: "transactions",
+        select: "purchasedTickets",
+        populate: {
+          path: "purchasedTickets",
+        },
+      });
+    return res.status(200).json({ message: "success", verifiedTransactions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getVerifiedTicketsForSamhitaId = async (req, res) => {
+  try {
+    const { samhitaId } = req.params;
+    if (!samhitaId) {
+      return res.status(400).json({ message: "Samhita ID is required" });
+    }
+    const verifiedTransactions = await VerifiedTransactions.findOne({
+      samhitaId,
+    })
+      .populate("user", "userName mobile email college dept regNo")
+      .populate({
+        path: "transactions",
+        select: "purchasedTickets",
+        populate: {
+          path: "purchasedTickets",
+        },
+      });
+    return res.status(200).json({ message: "success", verifiedTransactions });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   addTicket,
   getTickets,
   getVerifiedTickets,
+  getAllVerifiedTickets,
+  getVerifiedTicketsForSamhitaId,
 };
