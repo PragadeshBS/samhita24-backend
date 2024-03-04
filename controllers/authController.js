@@ -13,7 +13,7 @@ const createUser = async (req, res) => {
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
     }
-    const { userName, regNo, mobile, email, college, dept, password } =
+    const { userName, regNo, mobile, email, college, dept, password, gender } =
       req.body;
 
     // finding duplicates
@@ -46,6 +46,7 @@ const createUser = async (req, res) => {
       college: college.toUpperCase().trim(),
       dept,
       password: hashedPassword,
+      gender: gender || "Not Specified",
     });
     const userInfo = JSON.parse(JSON.stringify(user));
     delete userInfo.password;
@@ -141,6 +142,7 @@ const validateSignup = (data) => {
     mobile: Joi.string().required().length(10).label("Mobile "),
     dept: Joi.string().required().label("Department"),
     college: Joi.string().required().label("College"),
+    gender: Joi.string().required().label("Gender"),
     email: Joi.string().email().required().label("Email"),
     password: Joi.string().required().label("Password"),
     confirmPassword: Joi.string().required().label("Confirm Password"),
