@@ -60,7 +60,7 @@ const getVerifiedTickets = async (req, res) => {
 const getAllVerifiedTickets = async (req, res) => {
   try {
     const verifiedTransactions = await VerifiedTransactions.find({})
-      .populate("user", "userName mobile email college dept regNo")
+      .populate("user", "userName mobile email college dept regNo gender")
       .populate({
         path: "transactions",
         select: "purchasedTickets",
@@ -83,7 +83,7 @@ const getVerifiedTicketsForSamhitaId = async (req, res) => {
     const verifiedTransactions = await VerifiedTransactions.findOne({
       samhitaId,
     })
-      .populate("user", "userName mobile email college dept regNo")
+      .populate("user", "userName mobile email college dept regNo gender")
       .populate({
         path: "transactions",
         select: "purchasedTickets",
