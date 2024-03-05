@@ -97,10 +97,46 @@ const getVerifiedTicketsForSamhitaId = async (req, res) => {
   }
 };
 
+const getVerifiedParticipantsForOrganizer = async (req, res) => {
+  try {
+    const managingCheckoutIds = req.user.managingCheckouts;
+    const checkoutOutIdParticipantsMap = {};
+    for (let checkoutId of managingCheckoutIds) {
+      checkoutOutIdParticipantsMap[checkoutId] = [];
+    }
+    const verifiedTransactions = await VerifiedTransactions.find({})
+      .populate("user", "userName mobile email college dept regNo gender")
+      .populate({
+        path: "transactions",
+        select: "purchasedTickets",
+        populate: {
+          path: "purchasedTickets",
+        },
+      });
+    for (let verifiedTransaction of verifiedTransactions) {
+      for (let transaction of verifiedTransaction.transactions) {
+        for (let ticket of transaction.purchasedTickets) {
+          if (managingCheckoutIds.includes(ticket.checkoutId)) {
+            checkoutOutIdParticipantsMap[ticket.checkoutId].push(
+              verifiedTransaction.user
+            );
+          }
+        }
+      }
+    }
+    return res
+      .status(200)
+      .json({ message: "success", checkoutOutIdParticipantsMap });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   addTicket,
   getTickets,
   getVerifiedTickets,
   getAllVerifiedTickets,
   getVerifiedTicketsForSamhitaId,
+  getVerifiedParticipantsForOrganizer,
 };

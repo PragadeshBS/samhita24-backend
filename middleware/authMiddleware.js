@@ -35,4 +35,12 @@ const adminOnly = async (req, res, next) => {
   }
 };
 
-module.exports = { protect, adminOnly };
+const organizerOnly = async (req, res, next) => {
+  if (req.user && req.user.organizedEvents.length > 0) {
+    next();
+  } else {
+    res.status(401).json({ error: "Not authorized. Insufficient permissions" });
+  }
+};
+
+module.exports = { protect, adminOnly, organizerOnly };

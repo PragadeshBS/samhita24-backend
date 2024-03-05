@@ -47,6 +47,9 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    managingCheckouts: {
+      type: [String],
+    },
   },
   { timestamps: true }
 );
