@@ -11,6 +11,7 @@ const analyticsRoutes = require("./routes/analyticsRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const referralRoutes = require("./routes/referralRoutes");
+const accommodationTimingRoutes = require("./routes/accommodationTimingRoutes");
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use("/api/logs", analyticsRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/referrals", referralRoutes);
+app.use("/api/accommodation-timings", accommodationTimingRoutes);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   app.listen(process.env.PORT, () => {
