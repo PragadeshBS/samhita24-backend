@@ -131,24 +131,25 @@ const addTransactionToVerified = async (transaction, user) => {
 
 const sendNotificationToUser = async (userId) => {
   const user = await User.findById(userId).select("email");
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.MAIL_USERNAME,
-      pass: process.env.MAIL_PWD,
-    },
-  });
+  console.log(user.email);
+  // const transporter = nodemailer.createTransport({
+  //   service: "gmail",
+  //   auth: {
+  //     user: process.env.MAIL_USERNAME,
+  //     pass: process.env.MAIL_PWD,
+  //   },
+  // });
 
-  var mailOptions = {
-    from: process.env.MAIL_USERNAME,
-    to: user.email,
-    subject: "Transaction Verified - Samhita 2024",
-    html: `<p>Hi! <br>A transaction you made at samhita.me was verified. Click the below link to view
-    all your purchased tickets.</p>
-    <a href="https://samhita.me/#/my-tickets">View your Tickets</a>`,
-  };
+  // var mailOptions = {
+  //   from: process.env.MAIL_USERNAME,
+  //   to: user.email,
+  //   subject: "Transaction Verified - Samhita 2024",
+  //   html: `<p>Hi! <br>A transaction you made at samhita.me was verified. Click the below link to view
+  //   all your purchased tickets.</p>
+  //   <a href="https://samhita.me/#/my-tickets">View your Tickets</a>`,
+  // };
 
-  transporter.sendMail(mailOptions);
+  // transporter.sendMail(mailOptions);
 };
 
 const verifyTransactions = async (req, res) => {
