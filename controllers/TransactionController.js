@@ -16,6 +16,11 @@ const addTransaction = async (req, res) => {
         .status(400)
         .json({ message: "UPI Transaction ID must be 12 characters long" });
     }
+    if (isNaN(upiTransactionId)) {
+      return res
+        .status(400)
+        .json({ message: "UPI Transaction ID must be a number" });
+    }
     const existingTransaction = await Transaction.findOne({
       upiTransactionId,
     });
