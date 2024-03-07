@@ -46,7 +46,8 @@ const getReferral = async (req, res) => {
     }
     if (
       referral.applicableCollege &&
-      referral.applicableCollege !== req.user.college
+      referral.applicableCollege.replaceAll(" ", "").replaceAll(".", "") !==
+        req.user.college.replaceAll(" ", "").replaceAll(".", "")
     ) {
       return res.status(400).json({
         message: "Referral code is not applicable for your college",
