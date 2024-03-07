@@ -14,7 +14,13 @@ const transactionSchema = mongoose.Schema(
     transactionStatus: {
       type: String,
       required: true,
-      enum: ["Success", "Failed", "Pending Verification", "Refunded"],
+      enum: [
+        "Success",
+        "Failed",
+        "Pending Verification",
+        "Refunded",
+        "Partially Refunded",
+      ],
       default: "Pending Verification",
     },
     userId: {
