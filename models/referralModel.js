@@ -20,6 +20,9 @@ const referralSchema = mongoose.Schema(
     applicableCollege: {
       type: String,
     },
+    applicableTicketTypes: {
+      type: [String],
+    },
     active: {
       type: Boolean,
       default: true,

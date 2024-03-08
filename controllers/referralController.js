@@ -8,6 +8,7 @@ const addReferral = async (req, res) => {
       discountPercent,
       discountAmount,
       applicableCollege,
+      applicableTicketTypes,
     } = req.body;
     const referral = await Refferal.create({
       referralCode,
@@ -15,6 +16,7 @@ const addReferral = async (req, res) => {
       discountPercent,
       discountAmount,
       applicableCollege,
+      applicableTicketTypes,
     });
     return res.status(200).json({
       referral,
