@@ -17,7 +17,8 @@ const createUser = async (req, res) => {
       req.body;
 
     // finding duplicates
-    let exists = await User.findOne({ email });
+    const lowerCaseEmail = email.toLowerCase().trim();
+    let exists = await User.findOne({ email: lowerCaseEmail });
     if (exists) {
       return res.status(400).json({ error: "Email already exists" });
     }
@@ -42,7 +43,7 @@ const createUser = async (req, res) => {
       userName,
       regNo,
       mobile,
-      email,
+      email: lowerCaseEmail,
       college: college.toUpperCase().trim(),
       dept,
       password: hashedPassword,
@@ -104,7 +105,8 @@ const login = async (req, res) => {
       return res.status(400).json({ error: error.details[0].message });
     }
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const lowerCaseEmail = email.toLowerCase();
+    const user = await User.findOne({ email: lowerCaseEmail });
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
