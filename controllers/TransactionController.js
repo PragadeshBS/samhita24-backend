@@ -32,11 +32,13 @@ const addTransaction = async (req, res) => {
     let amount = 0;
     const purchasedTicketIds = [];
     let containsAccommodationTicket = false;
+    const ticketTypes = [];
     for (let i = 0; i < checkoutIds.length; i++) {
       const ticket = await Ticket.findOne({ checkoutId: checkoutIds[i] });
       if (!ticket) {
         return res.status(404).json({ message: "Ticket not found" });
       }
+      ticketTypes.push(ticket.type);
       if (ticket.type === "accommodation") {
         containsAccommodationTicket = true;
       }
@@ -50,7 +52,8 @@ const addTransaction = async (req, res) => {
     if (referral) {
       if (!referral.active) {
         return res.status(400).json({ message: "Referral code is not active" });
-      } else if (
+      }
+      if (
         referral.applicableCollege &&
         referral.applicableCollege.replaceAll(" ", "").replaceAll(".", "") !==
           req.user.college.replaceAll(" ", "").replaceAll(".", "")
@@ -63,6 +66,19 @@ const addTransaction = async (req, res) => {
         return res.status(400).json({
           message: "Referral code is not applicable for accommodation tickets",
         });
+      }
+      if (
+        referral.applicableTicketTypes &&
+        referral.applicableTicketTypes.length > 0
+      ) {
+        for (let i = 0; i < ticketTypes.length; i++) {
+          if (!referral.applicableTicketTypes.includes(ticketTypes[i])) {
+            return res.status(400).json({
+              message:
+                "Referral code is not applicable for the selected tickets",
+            });
+          }
+        }
       }
       if (referral.discountAmount) {
         amount -= parseFloat(referral.discountAmount.toString());
@@ -194,9 +210,71 @@ const verifyTransactions = async (req, res) => {
   }
 };
 
+const addReferralToTransaction = async (req, res) => {
+  try {
+    const { upiTransactionId, referralCode } = req.body;
+    const lowerCaseReferralCode = referralCode.toLowerCase();
+    const referral = await Referral.findOne({
+      referralCode: lowerCaseReferralCode,
+    });
+    if (!referral) {
+      return res.status(400).json({ message: "Referral code not found" });
+    }
+    const transaction = await Transaction.findOne({ upiTransactionId });
+    if (!transaction) {
+      return res.status(400).json({ message: "Transaction not found" });
+    }
+    if (transaction.referral) {
+      return res
+        .status(400)
+        .json({ message: "Referral already added to transaction" });
+    }
+    transaction.referral = referral._id;
+    if (referral.discountAmount) {
+      transaction.transactionAmount -= parseFloat(
+        referral.discountAmount.toString()
+      );
+    } else if (referral.discountPercent) {
+      transaction.transactionAmount -=
+        (transaction.transactionAmount *
+          parseFloat(referral.discountPercent.toString())) /
+        100;
+    }
+    transaction.transactionStatus = "Success";
+    await transaction.save();
+    return res
+      .status(200)
+      .json({ message: "Referral added to transaction successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+const getUserCollegeFromTransaction = async (req, res) => {
+  try {
+    const { upiTransactionId } = req.body;
+    const transaction = await Transaction.findOne({ upiTransactionId });
+    if (!transaction) {
+      return res.status(400).json({ message: "Transaction not found" });
+    }
+    const user = await User.findById(transaction.userId).select("college");
+    const applicableReferral = await Referral.findOne({
+      applicableCollege: user.college,
+    }).select("referralCode");
+    return res.status(200).json({
+      college: user.college,
+      applicableReferralCode: applicableReferral?.referralCode,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   addTransaction,
   getTransactions,
   getAllTransactions,
   verifyTransactions,
+  addReferralToTransaction,
+  getUserCollegeFromTransaction,
 };
