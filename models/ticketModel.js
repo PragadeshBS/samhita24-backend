@@ -24,6 +24,14 @@ const ticketSchema = mongoose.Schema(
       enum: ["event", "workshop", "other", "workshop-combo", "accommodation"],
       default: "event",
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
+    applicableGender: {
+      type: String,
+      enum: ["Male", "Female"],
+    },
   },
   {
     timestamps: true,

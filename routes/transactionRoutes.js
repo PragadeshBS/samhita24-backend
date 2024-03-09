@@ -7,10 +7,11 @@ const {
   getUserCollegeFromTransaction,
 } = require("../controllers/TransactionController");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
+const { validateTickets } = require("../middleware/ticketMiddleware");
 
 const router = require("express").Router();
 
-router.post("/", protect, addTransaction);
+router.post("/", protect, validateTickets, addTransaction);
 
 router.get("/", protect, getTransactions);
 

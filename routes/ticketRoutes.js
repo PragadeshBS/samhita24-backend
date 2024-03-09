@@ -5,12 +5,14 @@ const {
   getAllVerifiedTickets,
   getVerifiedTicketsForSamhitaId,
   getVerifiedParticipantsForOrganizer,
+  verifyCheckoutIds,
 } = require("../controllers/TicketController");
 const {
   protect,
   adminOnly,
   organizerOnly,
 } = require("../middleware/authMiddleware");
+const { validateTickets } = require("../middleware/ticketMiddleware");
 
 const router = require("express").Router();
 
@@ -34,6 +36,13 @@ router.get(
   protect,
   organizerOnly,
   getVerifiedParticipantsForOrganizer
+);
+
+router.post(
+  "/verify-checkout-ids",
+  protect,
+  validateTickets,
+  verifyCheckoutIds
 );
 
 module.exports = router;

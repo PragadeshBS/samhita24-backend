@@ -132,6 +132,10 @@ const getVerifiedParticipantsForOrganizer = async (req, res) => {
   }
 };
 
+const verifyCheckoutIds = async (req, res) => {
+  return res.status(200).json({ message: "success" });
+};
+
 module.exports = {
   addTicket,
   getTickets,
@@ -139,4 +143,5 @@ module.exports = {
   getAllVerifiedTickets,
   getVerifiedTicketsForSamhitaId,
   getVerifiedParticipantsForOrganizer,
+  verifyCheckoutIds,
 };
