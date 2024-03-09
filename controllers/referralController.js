@@ -80,8 +80,30 @@ const getAllReferrals = async (req, res) => {
   }
 };
 
+const setReferralActiveStatus = async (req, res) => {
+  try {
+    const { referralCode, active } = req.body;
+    const referral = await Refferal.findOne({ referralCode });
+    if (!referral) {
+      return res.status(400).json({
+        message: "Referral code not found",
+      });
+    }
+    referral.active = active;
+    await referral.save();
+    return res.status(200).json({
+      referral,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addReferral,
   getReferral,
   getAllReferrals,
+  setReferralActiveStatus,
 };
