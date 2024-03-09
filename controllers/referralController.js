@@ -1,4 +1,5 @@
 const Refferal = require("../models/referralModel");
+const Transaction = require("../models/transactionModel");
 
 const addReferral = async (req, res) => {
   try {
@@ -66,14 +67,19 @@ const getReferral = async (req, res) => {
   }
 };
 
-const getAllReferrals = async (req, res) => {
+const getAllReferrals = async (_req, res) => {
   try {
-    const referrals = await Refferal.find({});
+    let referrals = await Refferal.find({});
+    referrals = referrals.map((referral) => referral.toObject());
+    for (let i = 0; i < referrals.length; i++) {
+      referrals[i].usageCount = await Transaction.countDocuments({
+        referral: referrals[i]._id,
+      });
+    }
     return res.status(200).json({
       referrals,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       error: error.message,
     });
