@@ -12,7 +12,7 @@ const validateTickets = async (req, res, next) => {
         .status(400)
         .json({ message: "One or more tickets not active" });
     }
-    if (ticket.applicableGender === "MALE" && req.user.gender !== "MALE") {
+    if (ticket.applicableGender === "Male" && req.user.gender !== "Male") {
       return res.status(400).json({
         message:
           "One or more tickets are applicable only for male participants",
