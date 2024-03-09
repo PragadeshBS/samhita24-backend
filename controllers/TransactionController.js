@@ -106,6 +106,37 @@ const addTransaction = async (req, res) => {
   }
 };
 
+const addTransactionAdmin = async (req, res) => {
+  try {
+    const { upiTransactionId, checkoutIds, userId, transactionAmount } =
+      req.body;
+    if (!upiTransactionId || !checkoutIds || !userId) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+    const purchasedTicketIds = [];
+    for (let i = 0; i < checkoutIds.length; i++) {
+      const ticket = await Ticket.findOne({ checkoutId: checkoutIds[i] });
+      if (!ticket) {
+        return res.status(404).json({ message: "Ticket not found" });
+      }
+      purchasedTicketIds.push(ticket._id);
+    }
+    const transaction = await Transaction.create({
+      upiTransactionId,
+      transactionAmount,
+      userId,
+      purchasedTickets: purchasedTicketIds,
+      transactionStatus: "Success",
+    });
+    return res
+      .status(200)
+      .json({ message: "Transaction added successfully", transaction });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 const getAllTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find()
@@ -277,4 +308,5 @@ module.exports = {
   verifyTransactions,
   addReferralToTransaction,
   getUserCollegeFromTransaction,
+  addTransactionAdmin,
 };
