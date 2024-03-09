@@ -25,9 +25,25 @@ const getUserIds = async (req, res) => {
   res.status(200).json(users.map((user) => user._id));
 };
 
+const setGender = async (req, res) => {
+  try {
+    const { gender } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      res.status(400).json({ error: "No such user" });
+    }
+    user.gender = gender;
+    await user.save();
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getUserDetails,
   getOrganisedEvents,
   getParticipatedEvents,
   getUserIds,
+  setGender,
 };
