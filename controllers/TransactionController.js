@@ -69,6 +69,12 @@ const addTransaction = async (req, res) => {
           message: validateReferralResult.message,
         });
       }
+      if (referral.discountAmount) {
+        amount -= parseFloat(referral.discountAmount.toString());
+      } else if (referral.discountPercent) {
+        amount -=
+          (amount * parseFloat(referral.discountPercent.toString())) / 100;
+      }
     }
     const transactionObject = {
       upiTransactionId,
