@@ -1,5 +1,6 @@
 const Refferal = require("../models/referralModel");
 const Transaction = require("../models/transactionModel");
+const { validateReferral } = require("../shared/validateReferral");
 
 const addReferral = async (req, res) => {
   try {
@@ -10,6 +11,8 @@ const addReferral = async (req, res) => {
       discountAmount,
       applicableCollege,
       applicableTicketTypes,
+      applicableCheckoutIds,
+      applicableDept,
     } = req.body;
     const referral = await Refferal.create({
       referralCode,
@@ -17,7 +20,9 @@ const addReferral = async (req, res) => {
       discountPercent,
       discountAmount,
       applicableCollege,
+      applicableDept,
       applicableTicketTypes,
+      applicableCheckoutIds,
     });
     return res.status(200).json({
       referral,
@@ -37,23 +42,10 @@ const getReferral = async (req, res) => {
     const referral = await Refferal.findOne({ referralCode }).select(
       "-referredBy"
     );
-    if (!referral) {
+    const validateReferralResult = validateReferral(referral, req.user);
+    if (!validateReferralResult.success) {
       return res.status(400).json({
-        message: "Referral code not found",
-      });
-    }
-    if (!referral.active) {
-      return res.status(400).json({
-        message: "Referral code is not active",
-      });
-    }
-    if (
-      referral.applicableCollege &&
-      referral.applicableCollege.replaceAll(" ", "").replaceAll(".", "") !==
-        req.user.college.replaceAll(" ", "").replaceAll(".", "")
-    ) {
-      return res.status(400).json({
-        message: "Referral code is not applicable for your college",
+        message: validateReferralResult.message,
       });
     }
     return res.status(200).json({

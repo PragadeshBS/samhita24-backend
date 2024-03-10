@@ -23,6 +23,15 @@ const referralSchema = mongoose.Schema(
     applicableTicketTypes: {
       type: [String],
     },
+    applicableDept: {
+      type: String,
+    },
+    applicableCheckoutIds: {
+      type: [String],
+    },
+    applicableGender: {
+      type: String,
+    },
     active: {
       type: Boolean,
       default: true,

@@ -4,6 +4,9 @@ const Referral = require("../models/referralModel");
 const VerifiedTransactions = require("../models/verifiedTransactionsModel");
 const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
+const {
+  validateReferralForTransaction,
+} = require("../shared/validateReferral");
 
 const addTransaction = async (req, res) => {
   try {
@@ -50,41 +53,21 @@ const addTransaction = async (req, res) => {
       referralCode: lowerCaseReferralCode,
     });
     if (referral) {
-      if (!referral.active) {
-        return res.status(400).json({ message: "Referral code is not active" });
-      }
-      if (
-        referral.applicableCollege &&
-        referral.applicableCollege.replaceAll(" ", "").replaceAll(".", "") !==
-          req.user.college.replaceAll(" ", "").replaceAll(".", "")
-      ) {
-        return res.status(400).json({
-          message: "Referral code is not applicable for your college",
-        });
-      }
       if (containsAccommodationTicket) {
+        return res
+          .status(400)
+          .json({ message: "Referral code not applicable for accommodation" });
+      }
+      const validateReferralResult = validateReferralForTransaction(
+        referral,
+        req.user,
+        checkoutIds,
+        ticketTypes
+      );
+      if (!validateReferralResult.success) {
         return res.status(400).json({
-          message: "Referral code is not applicable for accommodation tickets",
+          message: validateReferralResult.message,
         });
-      }
-      if (
-        referral.applicableTicketTypes &&
-        referral.applicableTicketTypes.length > 0
-      ) {
-        for (let i = 0; i < ticketTypes.length; i++) {
-          if (!referral.applicableTicketTypes.includes(ticketTypes[i])) {
-            return res.status(400).json({
-              message:
-                "Referral code is not applicable for the selected tickets",
-            });
-          }
-        }
-      }
-      if (referral.discountAmount) {
-        amount -= parseFloat(referral.discountAmount.toString());
-      } else if (referral.discountPercent) {
-        amount -=
-          (amount * parseFloat(referral.discountPercent.toString())) / 100;
       }
     }
     const transactionObject = {
@@ -101,7 +84,6 @@ const addTransaction = async (req, res) => {
       .status(200)
       .json({ message: "Transaction added successfully", transaction });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: error.message });
   }
 };
