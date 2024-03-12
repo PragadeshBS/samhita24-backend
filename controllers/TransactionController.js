@@ -151,17 +151,18 @@ const getTransactions = async (req, res) => {
   }
 };
 
-const addTransactionToVerified = async (transaction, user) => {
+const addTransactionToVerified = async (transaction) => {
   try {
+    const userId = transaction.userId;
     const existingVerifiedTransactions = await VerifiedTransactions.findOne({
-      user,
+      user: userId,
     });
     if (existingVerifiedTransactions) {
       existingVerifiedTransactions.transactions.push(transaction._id);
       await existingVerifiedTransactions.save();
     } else {
       await VerifiedTransactions.create({
-        user,
+        user: userId,
         transactions: [transaction._id],
       });
     }
@@ -170,27 +171,27 @@ const addTransactionToVerified = async (transaction, user) => {
   }
 };
 
-const sendNotificationToUser = async (userId) => {
-  const user = await User.findById(userId).select("email");
-  console.log(user.email);
-  // const transporter = nodemailer.createTransport({
-  //   service: "gmail",
-  //   auth: {
-  //     user: process.env.MAIL_USERNAME,
-  //     pass: process.env.MAIL_PWD,
-  //   },
-  // });
+const sendNotificationToUser = async (emails) => {
+  // const user = await User.findById(userId).select("email");
+  // console.log(user.email);
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PWD,
+    },
+  });
 
-  // var mailOptions = {
-  //   from: process.env.MAIL_USERNAME,
-  //   to: user.email,
-  //   subject: "Transaction Verified - Samhita 2024",
-  //   html: `<p>Hi! <br>A transaction you made at samhita.me was verified. Click the below link to view
-  //   all your purchased tickets.</p>
-  //   <a href="https://samhita.me/#/my-tickets">View your Tickets</a>`,
-  // };
+  var mailOptions = {
+    from: process.env.MAIL_USERNAME,
+    bcc: emails,
+    subject: "Transaction Verified - Samhita 2024",
+    html: `<p>Hi! <br>A transaction you made at samhita.me was verified. Click the below link to view
+    all your purchased tickets.</p>
+    <a href="https://samhita.me/#/my-tickets">View your Tickets</a>`,
+  };
 
-  // transporter.sendMail(mailOptions);
+  transporter.sendMail(mailOptions);
 };
 
 const verifyTransactions = async (req, res) => {
@@ -209,17 +210,15 @@ const verifyTransactions = async (req, res) => {
         transactionsToAdd.push(transaction);
       }
     });
-    const userIdsToSendNotifications = [];
+    const emailIds = [];
     for (let i = 0; i < transactionsToAdd.length; i++) {
-      await addTransactionToVerified(
-        transactionsToAdd[i],
-        transactionsToAdd[i].userId
-      );
-      userIdsToSendNotifications.push(transactionsToAdd[i].userId);
+      const userId = transactionsToAdd[i].userId;
+      await addTransactionToVerified(transactionsToAdd[i]);
+      const user = await User.findById(userId).select("email");
+      emailIds.push(user.email);
     }
-    for (let userId of userIdsToSendNotifications) {
-      await sendNotificationToUser(userId);
-    }
+    console.log("sending emails to", emailIds);
+    await sendNotificationToUser(emailIds);
     res.status(200).json({
       message: "Transactions verified successfully",
       transactionsAdded: transactionsToAdd.length,
