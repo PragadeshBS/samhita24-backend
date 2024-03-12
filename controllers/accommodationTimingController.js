@@ -1,6 +1,9 @@
 const { accommodationCheckoutIdHoursMap } = require("../constants");
 const AccommodationTiming = require("../models/accommodationTimingModel");
 const VerifiedTransactions = require("../models/verifiedTransactionsModel");
+const {
+  getVerifiedAccommodationTicketsForUsers,
+} = require("../shared/getVerifiedAccTickets");
 
 const getAccommodationTimings = async (req, res) => {
   try {
@@ -99,8 +102,30 @@ const getAccommodationTicketsForUser = async (userId) => {
 
 const getAllAccommodationTimings = async (req, res) => {
   try {
-    const accommodationTimings = await AccommodationTiming.find();
-    return res.status(200).json({ accommodationTimings });
+    const accommodationTimings = await AccommodationTiming.find().populate(
+      "user"
+    );
+    const userIdAccommodationTimingsMap = {};
+    const userIds = [];
+    for (const timing of accommodationTimings) {
+      userIds.push(timing.user._id);
+      userIdAccommodationTimingsMap[timing.user._id] = timing;
+    }
+    const verifiedAccommodationTickets =
+      await getVerifiedAccommodationTicketsForUsers(userIds);
+    for (const verifiedAccommodationTicket of verifiedAccommodationTickets) {
+      const userId = verifiedAccommodationTicket.user._id;
+      if (userIdAccommodationTimingsMap[userId]) {
+        userIdAccommodationTimingsMap[userId] = {
+          ...userIdAccommodationTimingsMap[userId]._doc,
+          verifiedAccommodationTickets:
+            verifiedAccommodationTicket.purchasedAccommodationTickets,
+        };
+      }
+    }
+    return res.status(200).json({
+      accommodationTimings: Object.values(userIdAccommodationTimingsMap),
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: error.message });
