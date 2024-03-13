@@ -12,7 +12,7 @@ const checkRateLimit = async (clientIp) => {
     createdAt: { $gt: lastFewMinutes },
   });
   console.log(
-    "lastFiveMinuteActions for",
+    "lastFewMinuteActions for",
     clientIp,
     ":",
     lastFewMinuteActions.length
