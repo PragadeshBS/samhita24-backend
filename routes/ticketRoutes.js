@@ -6,6 +6,7 @@ const {
   getVerifiedTicketsForSamhitaId,
   getVerifiedParticipantsForOrganizer,
   verifyCheckoutIds,
+  getVerifiedAccommodationParticipants,
 } = require("../controllers/TicketController");
 const {
   protect,
@@ -43,6 +44,13 @@ router.post(
   protect,
   validateTickets,
   verifyCheckoutIds
+);
+
+router.get(
+  "/accommodation-participants",
+  protect,
+  adminOnly,
+  getVerifiedAccommodationParticipants
 );
 
 module.exports = router;

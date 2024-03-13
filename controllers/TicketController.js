@@ -1,5 +1,6 @@
 const Ticket = require("../models/ticketModel");
 const VerifiedTransactions = require("../models/verifiedTransactionsModel");
+const AccommodationTimings = require("../models/accommodationTimingModel");
 
 const addTicket = async (req, res) => {
   try {
@@ -132,6 +133,53 @@ const getVerifiedParticipantsForOrganizer = async (req, res) => {
   }
 };
 
+const getVerifiedAccommodationParticipants = async (req, res) => {
+  try {
+    const managingCheckoutIds = [
+      "accommodation_24hrs",
+      "accommodation_48hrs",
+      "accommodation_24hrs_no_food",
+      "accommodation_48hrs_no_food",
+      "accommodation_48hrs_no_food_new",
+    ];
+    const checkoutOutIdParticipantsMap = {};
+    for (let checkoutId of managingCheckoutIds) {
+      checkoutOutIdParticipantsMap[checkoutId] = [];
+    }
+    const verifiedTransactions = await VerifiedTransactions.find({})
+      .populate("user", "userName mobile email college dept regNo gender")
+      .populate({
+        path: "transactions",
+        select: "purchasedTickets",
+        populate: {
+          path: "purchasedTickets",
+        },
+      });
+    const accommodationTimings = await AccommodationTimings.find({});
+    for (let verifiedTransaction of verifiedTransactions) {
+      for (let transaction of verifiedTransaction.transactions) {
+        for (let ticket of transaction.purchasedTickets) {
+          if (managingCheckoutIds.includes(ticket.checkoutId)) {
+            checkoutOutIdParticipantsMap[ticket.checkoutId].push({
+              ...verifiedTransaction.user._doc,
+              accommodationTiming: accommodationTimings.find(
+                (accommodationTiming) =>
+                  accommodationTiming.user.toString() ===
+                  verifiedTransaction.user._id.toString()
+              ),
+            });
+          }
+        }
+      }
+    }
+    return res
+      .status(200)
+      .json({ message: "success", checkoutOutIdParticipantsMap });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const verifyCheckoutIds = async (req, res) => {
   return res.status(200).json({ message: "success" });
 };
@@ -144,4 +192,5 @@ module.exports = {
   getVerifiedTicketsForSamhitaId,
   getVerifiedParticipantsForOrganizer,
   verifyCheckoutIds,
+  getVerifiedAccommodationParticipants,
 };

@@ -218,7 +218,9 @@ const verifyTransactions = async (req, res) => {
       emailIds.push(user.email);
     }
     console.log("sending emails to", emailIds);
-    await sendNotificationToUser(emailIds);
+    if (emailIds.length > 0) {
+      await sendNotificationToUser(emailIds);
+    }
     res.status(200).json({
       message: "Transactions verified successfully",
       transactionsAdded: transactionsToAdd.length,
