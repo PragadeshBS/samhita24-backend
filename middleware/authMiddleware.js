@@ -44,6 +44,17 @@ const protect = async (req, res, next) => {
       // get user from token
       req.user = await User.findById(decoded.id).select("-password");
 
+      if (!req.user.active) {
+        await saveAction(
+          clientIp,
+          req.originalUrl,
+          req.user,
+          ua,
+          `Unauthorized access attempt with inactive user`
+        );
+        return res.status(401).json({ error: "Not authorized" });
+      }
+
       await saveAction(
         clientIp,
         req.originalUrl,

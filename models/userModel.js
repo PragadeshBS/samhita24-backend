@@ -50,6 +50,10 @@ const userSchema = mongoose.Schema(
     managingCheckouts: {
       type: [String],
     },
+    active: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
