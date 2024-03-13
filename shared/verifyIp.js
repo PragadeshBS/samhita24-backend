@@ -18,6 +18,8 @@ const checkRateLimit = async (clientIp) => {
     lastFewMinuteActions.length
   );
   if (lastFewMinuteActions.length > rateLimitCount) {
+    // add ip to blocked list
+    await BlockedIp.create({ ip: clientIp, blocked: true });
     return true;
   }
   return false;
