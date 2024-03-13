@@ -1,30 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const axios = require("axios");
 const requestIp = require("request-ip");
-const WebAction = require("../models/webActionModel");
-
-const saveAction = async (clientIp, path, user, ua, message) => {
-  if (clientIp) {
-    axios.get(`http://ip-api.com/json/${clientIp}`).then(async (response) => {
-      await WebAction.create({
-        ua,
-        path,
-        user: user?._id,
-        ...response.data,
-        message,
-      });
-    });
-  }
-  console.log(
-    clientIp,
-    ua,
-    user?._id,
-    user?.userName,
-    user?.email,
-    "from protect"
-  );
-};
+const saveWebAction = require("../shared/saveWebActions");
 
 const protect = async (req, res, next) => {
   const clientIp = requestIp.getClientIp(req);
@@ -45,7 +22,7 @@ const protect = async (req, res, next) => {
       req.user = await User.findById(decoded.id).select("-password");
 
       if (!req.user.active) {
-        await saveAction(
+        await saveWebAction(
           clientIp,
           req.originalUrl,
           req.user,
@@ -55,7 +32,7 @@ const protect = async (req, res, next) => {
         return res.status(401).json({ error: "Not authorized" });
       }
 
-      await saveAction(
+      await saveWebAction(
         clientIp,
         req.originalUrl,
         req.user,
@@ -65,7 +42,7 @@ const protect = async (req, res, next) => {
 
       next();
     } catch (error) {
-      await saveAction(
+      await saveWebAction(
         clientIp,
         req.originalUrl,
         req.user,
@@ -76,7 +53,7 @@ const protect = async (req, res, next) => {
     }
   }
   if (!token) {
-    await saveAction(
+    await saveWebAction(
       clientIp,
       req.originalUrl,
       req.user,
