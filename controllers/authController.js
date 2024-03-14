@@ -6,12 +6,21 @@ const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const PasswordReset = require("../models/passwordResetModel");
 const argon2 = require("argon2");
+const axios = require("axios");
 
 const createUser = async (req, res) => {
   try {
     const { error } = validateSignup(req.body);
     if (error) {
       return res.status(400).json({ error: error.details[0].message });
+    }
+    const response = await axios.post(
+      "https://www.google.com/recaptcha/api/siteverify",
+      `secret=${process.env.RECAPTCHA_SECRET}&response=${req.body.captchaValue}`
+    );
+    console.log("captcha response", response.data);
+    if (!response.data.success) {
+      return res.status(400).json({ error: "Invalid captcha" });
     }
     const { userName, regNo, mobile, email, college, dept, password, gender } =
       req.body;
@@ -145,6 +154,7 @@ const validateSignup = (data) => {
     dept: Joi.string().required().label("Department"),
     college: Joi.string().required().label("College"),
     gender: Joi.string().required().label("Gender"),
+    captchaValue: Joi.string().label("Captcha"),
     email: Joi.string().email().required().label("Email"),
     password: Joi.string().required().label("Password"),
     confirmPassword: Joi.string().required().label("Confirm Password"),
