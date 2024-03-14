@@ -4,13 +4,23 @@ const Referral = require("../models/referralModel");
 const VerifiedTransactions = require("../models/verifiedTransactionsModel");
 const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
+const axios = require("axios");
 const {
   validateReferralForTransaction,
 } = require("../shared/validateReferral");
 
 const addTransaction = async (req, res) => {
   try {
-    const { upiTransactionId, checkoutIds, referralCode } = req.body;
+    const { upiTransactionId, checkoutIds, referralCode, captchaValue } =
+      req.body;
+    const response = await axios.post(
+      "https://www.google.com/recaptcha/api/siteverify",
+      `secret=${process.env.RECAPTCHA_SECRET}&response=${captchaValue}`
+    );
+    console.log("captcha response", response.data);
+    if (!response.data.success) {
+      return res.status(400).json({ error: "Invalid captcha" });
+    }
     if (!upiTransactionId || !checkoutIds) {
       return res.status(400).json({ message: "All fields are required" });
     }
