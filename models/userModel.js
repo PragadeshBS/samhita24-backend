@@ -47,6 +47,10 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isOrganizer: {
+      type: Boolean,
+      default: false,
+    },
     managingCheckouts: {
       type: [String],
     },

@@ -73,7 +73,10 @@ const adminOnly = async (req, res, next) => {
 };
 
 const organizerOnly = async (req, res, next) => {
-  if (req.user && req.user.organizedEvents.length > 0) {
+  if (
+    req.user &&
+    (req.user.organizedEvents.length > 0 || req.user.isOrganizer)
+  ) {
     next();
   } else {
     res.status(401).json({ error: "Not authorized. Insufficient permissions" });

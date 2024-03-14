@@ -28,7 +28,7 @@ router.get("/verified/all", protect, adminOnly, getAllVerifiedTickets);
 router.get(
   "/verified/:samhitaId",
   protect,
-  adminOnly,
+  organizerOnly,
   getVerifiedTicketsForSamhitaId
 );
 
