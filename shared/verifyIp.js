@@ -45,6 +45,13 @@ const verifyIp = async (req, res, next) => {
     "Access attempt"
   );
   if (!isValidUa(req.get("User-Agent"))) {
+    await saveWebAction(
+      clientIp,
+      req.originalUrl,
+      null,
+      req.get("User-Agent"),
+      "Blocked UA"
+    );
     return res.status(403).json({ message: "Unauthorized" });
   }
   const blockedIps = await BlockedIp.find({ blocked: true });
