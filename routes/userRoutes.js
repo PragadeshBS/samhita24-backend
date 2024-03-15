@@ -7,7 +7,7 @@ const {
   setGender,
   getUserInfoWithMobile,
 } = require("../controllers/userController");
-const { protect, adminOnly } = require("../middleware/authMiddleware");
+const { protect, organizerOnly } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -21,6 +21,6 @@ router.get("/events-participated", protect, getParticipatedEvents);
 
 router.post("/gender", protect, setGender);
 
-router.post("/mobile", protect, adminOnly, getUserInfoWithMobile);
+router.post("/mobile", protect, organizerOnly, getUserInfoWithMobile);
 
 module.exports = router;
