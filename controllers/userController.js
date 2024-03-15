@@ -30,11 +30,11 @@ const getUserInfoWithMobile = async (req, res) => {
     const { mobile } = req.body;
     const user = await User.findOne({ mobile });
     if (!user) {
-      res.status(400).json({ message: "No such user" });
+      return res.status(400).json({ message: "No such user" });
     }
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 };
 
