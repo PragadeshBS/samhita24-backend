@@ -120,7 +120,15 @@ const addTransactionAdmin = async (req, res) => {
         .status(400)
         .json({ message: "UPI Transaction ID must be a number" });
     }
-    const user = User.findOne({ mobile });
+    const existingTransaction = await Transaction.findOne({
+      upiTransactionId,
+    });
+    if (existingTransaction) {
+      return res
+        .status(400)
+        .json({ message: "A Transaction with this UPI ID already exists" });
+    }
+    const user = await User.findOne({ mobile });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -139,6 +147,9 @@ const addTransactionAdmin = async (req, res) => {
     const referral = await Referral.findOne({
       referralCode: lowerCaseReferralCode,
     });
+    if (referralCode && !referral) {
+      return res.status(400).json({ message: "Referral code not found" });
+    }
     if (referral) {
       const validateReferralResult = validateReferralForTransaction(
         referral,
