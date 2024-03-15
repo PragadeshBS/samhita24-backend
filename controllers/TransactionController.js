@@ -110,6 +110,16 @@ const addTransactionAdmin = async (req, res) => {
     if (!upiTransactionId || !checkoutIds || !mobile) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    if (upiTransactionId.length !== 12) {
+      return res.status(400).json({
+        message: "UPI Transaction ID must be 12 characters long",
+      });
+    }
+    if (isNaN(upiTransactionId)) {
+      return res
+        .status(400)
+        .json({ message: "UPI Transaction ID must be a number" });
+    }
     const user = User.findOne({ mobile });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
