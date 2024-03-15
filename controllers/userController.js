@@ -25,6 +25,19 @@ const getUserIds = async (req, res) => {
   res.status(200).json(users.map((user) => user._id));
 };
 
+const getUserInfoWithMobile = async (req, res) => {
+  try {
+    const { mobile } = req.body;
+    const user = await User.findOne({ mobile });
+    if (!user) {
+      res.status(400).json({ message: "No such user" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 const setGender = async (req, res) => {
   try {
     const { gender } = req.body;
@@ -46,4 +59,5 @@ module.exports = {
   getParticipatedEvents,
   getUserIds,
   setGender,
+  getUserInfoWithMobile,
 };

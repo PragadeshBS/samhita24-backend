@@ -106,26 +106,59 @@ const addTransaction = async (req, res) => {
 
 const addTransactionAdmin = async (req, res) => {
   try {
-    const { upiTransactionId, checkoutIds, userId, transactionAmount } =
-      req.body;
-    if (!upiTransactionId || !checkoutIds || !userId) {
+    const { upiTransactionId, checkoutIds, mobile, referralCode } = req.body;
+    if (!upiTransactionId || !checkoutIds || !mobile) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    const user = User.findOne({ mobile });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    let amount = 0;
     const purchasedTicketIds = [];
+    const ticketTypes = [];
     for (let i = 0; i < checkoutIds.length; i++) {
       const ticket = await Ticket.findOne({ checkoutId: checkoutIds[i] });
       if (!ticket) {
         return res.status(404).json({ message: "Ticket not found" });
       }
       purchasedTicketIds.push(ticket._id);
+      amount += parseFloat(ticket.ticketPrice.toString());
     }
-    const transaction = await Transaction.create({
+    const lowerCaseReferralCode = referralCode.toLowerCase();
+    const referral = await Referral.findOne({
+      referralCode: lowerCaseReferralCode,
+    });
+    if (referral) {
+      const validateReferralResult = validateReferralForTransaction(
+        referral,
+        user,
+        checkoutIds,
+        ticketTypes
+      );
+      if (!validateReferralResult.success) {
+        return res.status(400).json({
+          message: validateReferralResult.message,
+        });
+      }
+      if (referral.discountAmount) {
+        amount -= parseFloat(referral.discountAmount.toString());
+      } else if (referral.discountPercent) {
+        amount -=
+          (amount * parseFloat(referral.discountPercent.toString())) / 100;
+      }
+    }
+    const transactionObject = {
       upiTransactionId,
-      transactionAmount,
-      userId,
+      transactionAmount: amount,
+      userId: user._id,
       purchasedTickets: purchasedTicketIds,
       transactionStatus: "Success",
-    });
+    };
+    if (referral) {
+      transactionObject.referral = referral._id;
+    }
+    const transaction = await Transaction.create(transactionObject);
     return res
       .status(200)
       .json({ message: "Transaction added successfully", transaction });
@@ -258,6 +291,29 @@ const addReferralToTransaction = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Referral already added to transaction" });
+    }
+    const user = await User.findById(transaction.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const checkoutIds = [],
+      ticketTypes = [];
+    for (let i = 0; i < transaction.purchasedTickets.length; i++) {
+      const ticket = await Ticket.findById(transaction.purchasedTickets[i]);
+      checkoutIds.push(ticket.checkoutId);
+      ticketTypes.push(ticket.type);
+    }
+    for (let i = 0; i < checkoutIds.length; i++) {}
+    const validateReferralResult = validateReferralForTransaction(
+      referral,
+      user,
+      checkoutIds,
+      ticketTypes
+    );
+    if (!validateReferralResult.success) {
+      return res.status(400).json({
+        message: validateReferralResult.message,
+      });
     }
     transaction.referral = referral._id;
     if (referral.discountAmount) {
